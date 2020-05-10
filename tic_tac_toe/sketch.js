@@ -15,10 +15,10 @@ function setup() {
   recommencer(); // état initial de la partie
 
   //boutton pour recommencer la partie
-  bouttonSetup(200, 500, 300, 60);
+  bouttonSetup(550, 500, 300, 60);
   //paragraphe pour les infos du joueur dont c'est le tour de jouer
   infoJoueur = createP();
-  infoJoueur.position(650, 20);
+  infoJoueur.position(550, 400);
   infoJoueur.style('font-size', '200%');
 
 }
@@ -75,7 +75,7 @@ function plateauAff() {
       line(3 * (tailleCase / 4), (tailleCase / 4), (tailleCase / 4), 3 * (tailleCase / 4));
     }
     pop();
-    infoJoueur.html("Player " + ((joueurTour) ? "1 (X) " : "2 (O) ") + " turn"); // met à jour les infos du joueur 
+    infoJoueur.html("Tour du joueur " + ((joueurTour) ? "1 (X) " : "2 (O) ") + " !"); // met à jour les infos du joueur 
   }
 }
 
