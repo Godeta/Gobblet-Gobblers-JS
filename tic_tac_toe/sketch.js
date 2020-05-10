@@ -1,12 +1,16 @@
-var plateau, tailleCase, tailleFen;
-var joueurTour;
-var finPartie;
+let plateau, tailleCase, tailleFen;
+let joueurTour;
+let finPartie;
 //compte le nombre de pièces posées sur une case
-var compte;
-var vainqueur;
-var boutton;
+let compte;
+let vainqueur;
+let boutton;
 //partie indiquant le tour du joueur
-var infoJoueur;
+let infoJoueur;
+//selecteur de mode
+let selectMode;
+let mode = "PvP";
+let textMode;
 
 function setup() {
   tailleFen = 400;
@@ -20,6 +24,17 @@ function setup() {
   infoJoueur = createP();
   infoJoueur.position(550, 400);
   infoJoueur.style('font-size', '200%');
+  //choisir le mode
+  selectMode = createSelect();
+  selectMode.position(550, 630);
+  selectMode.option('PvP');
+  selectMode.option('IA random');
+  selectMode.option('IA minmax');
+  selectMode.changed(mySelectEvent); //si on change de valeur alors ça lance la fonction mySelectEvent
+  //paragraphe pour afficher le mode actuel
+  textMode = createP();
+  textMode.position(550, 600);
+  textMode.style('font-size', '100%');
 
 }
 
@@ -41,7 +56,8 @@ function recommencer() {
 
 function draw() {
   background(51, 40, 255);
-  this.plateauAff();
+  plateauAff();
+  texteMode();
 
   if (finPartie) { // si la partie est finie
     if (compte === 9) { // vérifie si toutes les cases sont remplies et affiche égalité si c'est le cas
@@ -79,22 +95,28 @@ function plateauAff() {
   }
 }
 
-function mouseReleased() { // detecte les clics sur une cellule
+//affichage du texte indiquant le mode actuel
+function texteMode() {
+  textMode.html("Le mode actuel est : <b>" + mode + "</b> cliquez sur le selecteur ci dessous pour changer de mode.");
+}
+
+// detecte les clics sur une cellule
+function mouseReleased() {
   if (finPartie) {
     return;
-  } // If game over take no input
+  } // si la partie est finie on ne détecte plus les nouveaux clics
   mx = mouseX;
   my = mouseY;
   if (mx > tailleFen || my > tailleFen) {
     return;
-  } // If clicked outside board do nothing
+  } // si on clique en dehors de la fenêtre alors aucun effet
   x = floor(mx / tailleCase);
   y = floor(my / tailleCase);
   ind = (y * 3) + x;
   if (plateau[ind] <= 0) {
     return;
-  } // If clicked box already has symbol do nothing
-  plateau[ind] = (joueurTour) ? -1 : 0; // Else, put symbol
+  } // si la case est déjà remplie le clic n'aura aucun effet
+  plateau[ind] = (joueurTour) ? -1 : 0; // Sinon on met le symbole
   joueurTour = !joueurTour;
   compte++;
   verifVictoire();
@@ -137,4 +159,9 @@ function ligneVictoire() {
   strokeWeight(20);
   line(x1, y1, x2, y2);
   infoJoueur.html("Joueur " + ((plateau[vainqueur[0]] === -1) ? "1 (X) " : "2 (O) ") + "Won!"); // maj infos joueurs
+}
+
+//changement de mode
+function mySelectEvent() {
+  mode = selectMode.value();
 }
