@@ -1,3 +1,4 @@
+//les fondations du jeu
 let plateau, tailleCase, tailleFen;
 let joueurTour;
 let finPartie;
@@ -11,6 +12,8 @@ let infoJoueur;
 let selectMode;
 let mode = "PvP";
 let textMode;
+// l'intelligence artificielle
+let AI;
 
 function setup() {
   tailleFen = 400;
@@ -26,7 +29,7 @@ function setup() {
   infoJoueur.style('font-size', '200%');
   //choisir le mode
   selectMode = createSelect();
-  selectMode.position(550, 630);
+  selectMode.position(550, 650);
   selectMode.option('PvP');
   selectMode.option('IA random');
   selectMode.option('IA minmax');
@@ -58,9 +61,11 @@ function draw() {
   background(51, 40, 255);
   plateauAff();
   texteMode();
-
   if (finPartie) { // si la partie est finie
-    if (compte === 9) { // vérifie si toutes les cases sont remplies et affiche égalité si c'est le cas
+    if (compte === 9 && vainqueur.length < 1) { // vérifie si toutes les cases sont remplies et affiche égalité si c'est le cas
+      for (let a = 0; a++; a < 9) {
+        console.log(plateau[a] + "affichage");
+      }
       textAlign(CENTER, CENTER);
       textSize(64);
       fill(255);
@@ -68,9 +73,14 @@ function draw() {
       strokeWeight(3);
       text("Egalité !", width / 2, height / 2);
       infoJoueur.html("Egalité");
+
       return;
     }
     ligneVictoire();
+  }
+  //si on est en mode IA random et que ce n'est pas le tour du joueur
+  if (mode == "IA random" && joueurTour == false) {
+    randomChoice();
   }
 }
 
@@ -102,21 +112,29 @@ function texteMode() {
 
 // detecte les clics sur une cellule
 function mouseReleased() {
+  // si la partie est finie on ne détecte plus les nouveaux clics
   if (finPartie) {
     return;
-  } // si la partie est finie on ne détecte plus les nouveaux clics
+  }
+  //si on est en mode IA random et que ce n'est pas le tour du joueur
+  if (mode == "IA random" && joueurTour == false) {
+    return;
+  }
   mx = mouseX;
   my = mouseY;
+  // si on clique en dehors de la fenêtre alors aucun effet
   if (mx > tailleFen || my > tailleFen) {
     return;
-  } // si on clique en dehors de la fenêtre alors aucun effet
+  }
   x = floor(mx / tailleCase);
   y = floor(my / tailleCase);
   ind = (y * 3) + x;
+  // si la case est déjà remplie le clic n'aura aucun effet
   if (plateau[ind] <= 0) {
     return;
-  } // si la case est déjà remplie le clic n'aura aucun effet
-  plateau[ind] = (joueurTour) ? -1 : 0; // Sinon on met le symbole
+  }
+  // Sinon on met le symbole-> -1 vrai, 0 faux
+  plateau[ind] = (joueurTour) ? -1 : 0;
   joueurTour = !joueurTour;
   compte++;
   verifVictoire();
@@ -165,3 +183,27 @@ function ligneVictoire() {
 function mySelectEvent() {
   mode = selectMode.value();
 }
+
+//Ia aléatoire
+function randomChoice() {
+  // si la partie est finie on ne joue plus
+  if (finPartie) {
+    return;
+  }
+  let indi = floor(random(0, 9)); //on arrondi pour ne pas avoir de nombre à virgule
+  console.log(indi);
+  //on vérifie aléatoirement si une case est disponible
+  while (plateau[indi] <= 0) {
+    console.log(indi);
+    indi = floor(random(0, 9));
+  }
+  //on joue le coup
+  console.log("jouer le coup : " + indi);
+  plateau[indi] = 0; // Sinon on met le symbole-> -1 vrai, 0 faux
+  //fin du tour
+  joueurTour = !joueurTour;
+  compte++;
+  verifVictoire();
+}
+
+//Ia min max
