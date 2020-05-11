@@ -14,6 +14,7 @@ let mode = "PvP";
 let textMode;
 // l'intelligence artificielle
 let AI;
+let robot;
 
 function setup() {
   tailleFen = 400;
@@ -39,6 +40,10 @@ function setup() {
   textMode.position(550, 600);
   textMode.style('font-size', '100%');
 
+  //image IA
+
+  robot = loadImage("img/robot.png");
+
 }
 
 function bouttonSetup(x, y, w, h) {
@@ -52,8 +57,8 @@ function bouttonSetup(x, y, w, h) {
 function recommencer() {
   plateau = [1, 2, 3, 4, 5, 6, 7, 8, 9];
   compte = 0;
-  //tour du joueur 1
-  joueurTour = true;
+  //tour du joueur avec un boolean initialisé aléatoirement 
+  joueurTour = Math.random() >= 0.5;
   finPartie = false;
 }
 
@@ -62,10 +67,7 @@ function draw() {
   plateauAff();
   texteMode();
   if (finPartie) { // si la partie est finie
-    if (compte === 9 && vainqueur.length < 1) { // vérifie si toutes les cases sont remplies et affiche égalité si c'est le cas
-      for (let a = 0; a++; a < 9) {
-        console.log(plateau[a] + "affichage");
-      }
+    if (compte === 9) { // vérifie si toutes les cases sont remplies et affiche égalité si c'est le cas
       textAlign(CENTER, CENTER);
       textSize(64);
       fill(255);
@@ -80,7 +82,13 @@ function draw() {
   }
   //si on est en mode IA random et que ce n'est pas le tour du joueur
   if (mode == "IA random" && joueurTour == false) {
+
+    wait();
     randomChoice();
+  }
+  //si on est en mode IA min max et que ce n'est pas le tour du joueur
+  else if (mode == "IA minmax" && joueurTour == false) {
+    minmaxChoice();
   }
 }
 
@@ -102,6 +110,9 @@ function plateauAff() {
     }
     pop();
     infoJoueur.html("Tour du joueur " + ((joueurTour) ? "1 (X) " : "2 (O) ") + " !"); // met à jour les infos du joueur 
+    if (mode != "PvP" && joueurTour == false) {
+      infoJoueur.html('Tour de l\'IA (O) <img src="../img/robot.png" width="100" height="100">');
+    }
   }
 }
 
@@ -147,24 +158,30 @@ function keyPressed() { // on peut recommencer en pressant "r"
 }
 
 function verifVictoire() { // Vérifie si le joueur a gagné
-  if (compte === 9) { // si les 9 tours sont finis et aucun joueur n'a gagné alors égalité
-    finPartie = true;
-  }
   for (i = 0; i < 3; i++) // vérifie les colonnes
     if (plateau[i] == (plateau[i + 3]) && plateau[i] == (plateau[i + 6])) {
+      console.log(plateau[i], plateau[i + 3], plateau[i + 6]);
       finPartie = true;
+      compte = -1; //la partie est finie suite à une victoire, le compte n'a plus d'importance
       vainqueur = [i, i + 6]; // garde les premiers et derniers coordonnées des cases gagnantes
     }
   for (i = 0; i < 9; i += 3) // vérifie les lignes
     if (plateau[i] == (plateau[i + 1]) && plateau[i] == (plateau[i + 2])) {
+      console.log(plateau[i], plateau[i + 1], plateau[i + 2]);
       finPartie = true;
+      compte = -1;
       vainqueur = [i, i + 2]; // coord cases gagnantes
     }
   for (i = 0, b = 4; i < 3; i += 2, b -= 2) // vérifie les diagonales
     if (plateau[i] === (plateau[i + b]) && plateau[i] === (plateau[i + b + b])) {
+      console.log(plateau[i], plateau[i + b], plateau[i + b + b]);
       finPartie = true;
+      compte = -1;
       vainqueur = [i, i + b + b]; // coord cases gagnantes
     }
+  if (compte === 9) { // si les 9 tours sont finis et aucun joueur n'a gagné alors égalité
+    finPartie = true;
+  }
 }
 
 function ligneVictoire() {
@@ -191,14 +208,15 @@ function randomChoice() {
     return;
   }
   let indi = floor(random(0, 9)); //on arrondi pour ne pas avoir de nombre à virgule
-  console.log(indi);
+  //console.log(indi);
   //on vérifie aléatoirement si une case est disponible
   while (plateau[indi] <= 0) {
-    console.log(indi);
+    //console.log(indi);
     indi = floor(random(0, 9));
   }
+  wait();
   //on joue le coup
-  console.log("jouer le coup : " + indi);
+  //console.log("jouer le coup : "+indi);
   plateau[indi] = 0; // Sinon on met le symbole-> -1 vrai, 0 faux
   //fin du tour
   joueurTour = !joueurTour;
@@ -207,3 +225,14 @@ function randomChoice() {
 }
 
 //Ia min max
+function minmaxChoice() {
+
+}
+
+//stopper temporairement le programme
+function wait() {
+  let frame = 0;
+  while (frame < 2000) {
+    frame++;
+  }
+}
